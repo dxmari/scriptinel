@@ -1,0 +1,61 @@
+{
+  "name": "scriptinel",
+  "version": "0.1.0",
+  "description": "Install script firewall for npm - default-deny lifecycle scripts with explicit, reviewable allowlists",
+  "keywords": [
+    "npm",
+    "security",
+    "supply-chain",
+    "install-scripts",
+    "ci",
+    "firewall",
+    "lifecycle-scripts",
+    "postinstall",
+    "preinstall",
+    "npm-security",
+    "supply-chain-security"
+  ],
+  "author": "Mariselvam",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "scriptinel": "./bin/scriptinel"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dxmari/scriptinel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dxmari/scriptinel/issues"
+  },
+  "homepage": "https://github.com/dxmari/scriptinel#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
+

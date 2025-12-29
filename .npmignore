@@ -1,0 +1,42 @@
+# Source files
+src/
+tests/
+*.ts
+!*.d.ts
+
+# Development files
+.git/
+.github/
+.vscode/
+.cursor/
+*.md
+!README.md
+docs/
+examples/
+
+# Config files
+tsconfig.json
+vitest.config.ts
+eslint.config.*
+.prettierrc*
+.editorconfig
+
+# Build artifacts
+*.tsbuildinfo
+*.log
+coverage/
+.nyc_output/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
