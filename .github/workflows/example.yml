@@ -1,38 +1,33 @@
 name: Example CI with Scriptinel
 
+# NOTE: This is an EXAMPLE workflow showing how OTHER projects would use Scriptinel
+# For testing Scriptinel itself, see .github/workflows/ci.yml
+
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:  # Only run manually, not on push/PR
 
 jobs:
-  test:
+  example:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [18, 20, 22]
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: 'npm'
       
+      # Example: How other projects would use Scriptinel
+      # They would install it from npm or use npx
       - name: Install dependencies (safe)
         run: npm ci --ignore-scripts
       
-      - name: Run Scriptinel
-        run: npx scriptinel --ci
-      
-      - name: Run tests
-        run: npm test
-      
-      - name: Build
-        run: npm run build
+      - name: Run Scriptinel (example)
+        run: |
+          echo "This is an example of how other projects would use Scriptinel"
+          echo "In a real project, you would run: npx scriptinel --ci"
+          # Note: This won't work in Scriptinel's own repo without building first
 

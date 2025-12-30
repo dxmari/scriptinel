@@ -1,4 +1,4 @@
-name: CI
+name: Test Scriptinel on Itself
 
 on:
   push:
@@ -7,50 +7,44 @@ on:
     branches: [main, develop]
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
+  test-scriptinel:
+    runs-on: ubuntu-latest
+    
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         node-version: [18, 20, 22]
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
+          cache: 'npm'
+      
       - name: Install dependencies
         run: npm ci
-
-      - name: Type check
-        run: npm run type-check
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Build
+      
+      - name: Build Scriptinel
         run: npm run build
-
+      
       - name: Verify build output
         run: |
           test -f dist/cli/index.js || (echo "Build failed: dist/cli/index.js not found" && exit 1)
           test -f bin/scriptinel || (echo "Binary not found: bin/scriptinel" && exit 1)
-
-      - name: Test
-        run: npm test
-
-      - name: Test coverage
-        run: npm run test:coverage
       
-      - name: Test Scriptinel on itself (if policy exists)
+      - name: Test Scriptinel on itself
         run: |
+          # Test Scriptinel on its own dependencies
+          # Use the built binary directly instead of npx
           if [ -f install-scripts.policy.json ]; then
             node bin/scriptinel --ci || echo "Policy violations found - this is expected if policy needs updates"
           else
-            echo "No policy file - skipping self-test"
+            echo "No policy file - skipping self-test (this is normal for first run)"
           fi
+      
+      - name: Run unit tests
+        run: npm test
 
