@@ -33,8 +33,11 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "prebuild": "node -e \"if(parseInt(process.versions.node.split('.')[0])<18){console.error('❌ Node.js 18+ required. Current:', process.versions.node);process.exit(1)}\"",
     "build": "tsc",
     "dev": "tsc --watch",
+    "pretest": "node -e \"if(parseInt(process.versions.node.split('.')[0])<18){console.error('❌ Node.js 18+ required. Current:', process.versions.node);process.exit(1)}\"",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts",
@@ -53,9 +56,10 @@
     "@types/node": "^20.11.0",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "eslint": "^8.56.0",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.0"
+    "vitest": "^1.6.0"
   }
 }
 

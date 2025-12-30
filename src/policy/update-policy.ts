@@ -1,7 +1,16 @@
 import { writeFileSync } from 'fs'
 import { InternalError } from '../errors/internal-error.js'
 import { validatePolicy } from './validate-policy.js'
+import { LIFECYCLE_SCRIPTS } from '../constants/index.js'
 import type { Policy, LifecycleScript } from '../types/index.js'
+
+function sortByLifecycleOrder(scripts: LifecycleScript[]): LifecycleScript[] {
+  return scripts.sort((a, b) => {
+    const indexA = LIFECYCLE_SCRIPTS.indexOf(a)
+    const indexB = LIFECYCLE_SCRIPTS.indexOf(b)
+    return indexA - indexB
+  })
+}
 
 export function approvePackageScripts(
   policy: Policy,
@@ -9,7 +18,7 @@ export function approvePackageScripts(
   scripts: LifecycleScript[]
 ): Policy {
   const currentAllowed = policy.allow[packageName] ?? []
-  const newAllowed = [...new Set([...currentAllowed, ...scripts])].sort()
+  const newAllowed = sortByLifecycleOrder([...new Set([...currentAllowed, ...scripts])])
 
   const updatedPolicy: Policy = {
     ...policy,
@@ -48,6 +57,6 @@ export function detectAllScriptsForPackage(
     .filter(s => s.packageName === packageName)
     .map(s => s.script)
 
-  return [...new Set(scripts)].sort()
+  return sortByLifecycleOrder([...new Set(scripts)])
 }
 

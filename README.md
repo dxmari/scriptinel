@@ -21,6 +21,8 @@ npx scriptinel approve esbuild
 npx scriptinel --ci
 ```
 
+> **New to Scriptinel?** Check out the [Understanding Scriptinel Guide](docs/understanding-scriptinel.md) for a complete walkthrough with examples and test scenarios.
+
 ## Why Scriptinel?
 
 npm lifecycle scripts are a major **supply-chain attack vector**. Attackers can inject malicious code that runs automatically during `npm install`. Scriptinel provides:
@@ -30,6 +32,26 @@ npm lifecycle scripts are a major **supply-chain attack vector**. Attackers can 
 - **CI enforcement** - Fail builds on unapproved scripts
 - **Zero-config** - Works immediately with `npx scriptinel`
 - **Deterministic** - Same input always produces same output
+
+## Requirements
+
+- **Node.js 18+** (required for development and testing)
+- npm 7+ or compatible package manager
+
+> **Note:** If you're using `nvm`, run `nvm use` to automatically switch to Node.js 18+.
+
+### Quick Setup
+
+If you encounter dependency issues, run the setup script:
+
+```bash
+npm run setup
+```
+
+This will:
+1. Switch to Node.js 18+ (if using nvm)
+2. Clean and reinstall all dependencies
+3. Verify the installation
 
 ## Installation
 
@@ -277,6 +299,15 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - [npm-audit](https://docs.npmjs.com/cli/v8/commands/npm-audit) - Dependency vulnerability scanning
 - [snyk](https://snyk.io/) - Security scanning and monitoring
 - [dependabot](https://dependabot.com/) - Automated dependency updates
+
+## Documentation
+
+- **[Understanding Scriptinel](docs/understanding-scriptinel.md)** - Complete guide with examples and scenarios
+- **[Testing Guide](TESTING_GUIDE.md)** - How to test and understand Scriptinel
+- **[Getting Started](docs/getting-started.md)** - Quick start guide
+- **[FAQ](docs/faq.md)** - Common questions
+- **[Quick Reference](docs/quick-reference.md)** - Command cheat sheet
+- **[Examples](examples/)** - Real-world usage examples
 
 ## Support
 
