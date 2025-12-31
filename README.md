@@ -4,9 +4,27 @@
 > Default-deny lifecycle scripts with explicit, reviewable allowlists.
 
 [![npm version](https://img.shields.io/npm/v/scriptinel)](https://www.npmjs.com/package/scriptinel)
+[![npm downloads](https://img.shields.io/npm/dw/scriptinel)](https://www.npmjs.com/package/scriptinel)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Scriptinel blocks all npm lifecycle scripts (`preinstall`, `install`, `postinstall`) unless they are explicitly approved via a policy file committed to your repository. This provides a controlled middle ground between running everything blindly (high risk) and disabling scripts entirely (breaks builds).
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Why Scriptinel?](#why-scriptinel)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Policy File](#policy-file)
+- [CLI Reference](#cli-reference)
+- [Operating Modes](#operating-modes)
+- [Examples](#examples)
+- [Comparison with Alternatives](#comparison-with-alternatives)
+- [Security Considerations](#security-considerations)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [Documentation](#documentation)
 
 ## Quick Start
 
@@ -99,18 +117,24 @@ This automatically:
 
 ### CI Integration
 
-Add Scriptinel to your CI pipeline to enforce policy:
+Add Scriptinel to your CI pipeline to enforce policy. This is where Scriptinel provides the most value—preventing unapproved scripts from running in production builds.
 
 ```yaml
 # .github/workflows/ci.yml
-- name: Scriptinel
+- name: Install dependencies safely
+  run: npm ci --ignore-scripts
+  
+- name: Run Scriptinel
   run: npx scriptinel --ci
 ```
 
-In CI mode:
-- Unapproved scripts cause the build to fail (exit code 1)
-- Policy violations are clearly reported
-- Builds pass only when all scripts are approved
+**CI mode behavior:**
+- ✅ Unapproved scripts cause the build to fail (exit code 1)
+- ✅ Policy violations are clearly reported with actionable messages
+- ✅ Builds pass only when all scripts are explicitly approved
+- ✅ Policy file must be committed to version control
+
+This ensures that **no unapproved scripts can run in your CI/CD pipeline**, providing a critical security layer.
 
 ### Audit Mode
 
@@ -124,6 +148,22 @@ Useful for:
 - Checking policy compliance without modifying behavior
 - Generating reports for security audits
 - Understanding script usage across dependencies
+
+## Operating Modes
+
+Scriptinel operates in three distinct modes, each with specific behavior:
+
+| Mode | Command | Behavior | Exit Code on Violations | Scripts Execute? |
+|------|---------|----------|------------------------|------------------|
+| **Default** | `npx scriptinel` | Warns on violations, continues | `0` (warns only) | Yes (approved only) |
+| **CI** | `npx scriptinel --ci` | Fails on violations | `1` (fails build) | Yes (approved only) |
+| **Audit** | `npx scriptinel --audit` | Reports only, no blocking | `0` (always succeeds) | No |
+
+### When to Use Each Mode
+
+- **Default mode**: Local development, first-time setup, exploring dependencies
+- **CI mode**: Continuous integration pipelines, automated testing, production builds
+- **Audit mode**: Security reviews, compliance checks, understanding script usage
 
 ## Policy File
 
@@ -154,10 +194,15 @@ Scriptinel uses `install-scripts.policy.json` in your project root:
 
 ### Policy Rules
 
-- Exact package names only (no wildcards)
-- Explicit script names only (`preinstall`, `install`, `postinstall`)
-- Policy file should be committed to version control
-- Policy changes require explicit approval
+The policy file is the **core contract** between you and Scriptinel. It must be:
+
+- **Exact package names only** - No wildcards, no patterns, case-sensitive matching
+- **Explicit script names only** - Must specify `preinstall`, `install`, or `postinstall` exactly
+- **Version-controlled** - Policy file should be committed to git for team consistency
+- **Reviewable** - Policy changes appear in git diffs, enabling code review
+- **Deterministic** - Same policy file always produces same behavior
+
+> **Why no wildcards?** Security tools require predictability. Wildcards introduce ambiguity and make it harder to audit what's actually approved.
 
 ## CLI Reference
 
@@ -231,6 +276,7 @@ jobs:
 test:
   image: node:20
   script:
+    - npm ci --ignore-scripts
     - npx scriptinel --ci
     - npm test
 ```
@@ -244,6 +290,7 @@ jobs:
       - image: node:20
     steps:
       - checkout
+      - run: npm ci --ignore-scripts
       - run: npx scriptinel --ci
       - run: npm test
 ```
@@ -272,33 +319,95 @@ Check that:
 
 ## Security Considerations
 
-Scriptinel follows security best practices:
+Scriptinel is designed with security-first principles. Here's what we **guarantee**:
 
-- Never uses `shell: true` (prevents shell injection)
-- Validates all package names strictly
-- No network calls during install phase
-- No dynamic code execution
-- No environment mutation
+### Security Guarantees
+
+✅ **No shell injection risk** - Never uses `shell: true`, always uses explicit command execution  
+✅ **Strict input validation** - All package names and script names are validated  
+✅ **No network calls** - Zero network activity during install phase  
+✅ **No dynamic execution** - No `eval()`, `Function()`, or dynamic `require()`  
+✅ **No environment mutation** - Does not modify system environment variables  
+✅ **Deterministic behavior** - Same input always produces same output  
+✅ **Zero runtime dependencies** - Uses only Node.js built-ins (reduces attack surface)
+
+### What Scriptinel Does NOT Do
+
+❌ Scan for known vulnerabilities (use `npm audit` or Snyk)  
+❌ Monitor runtime behavior (use runtime security tools)  
+❌ Analyze package contents (use static analysis tools)  
+❌ Replace dependency management (works with npm/yarn/pnpm)
+
+Scriptinel's scope is **install-time script execution control**—nothing more, nothing less.
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines and code of conduct.
+Contributions are welcome and help make Scriptinel better for everyone.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+### How to Contribute
+
+1. **Fork the repository** and clone your fork
+2. **Create a feature branch**: `git checkout -b feature/your-feature-name`
+3. **Make your changes** following our [coding rules](.cursor/rules/scriptinel_npm_plugin_coding_rules.md)
+4. **Add tests** for new functionality
+5. **Run the test suite**: `npm test`
+6. **Submit a pull request** with a clear description
+
+### Development Setup
+
+```bash
+# Clone and setup
+git clone https://github.com/dxmari/scriptinel.git
+cd scriptinel
+npm install
+
+# Run tests
+npm test
+
+# Build
+npm run build
+```
+
+### Code Standards
+
+- Follow TypeScript strict mode
+- Functions ≤ 25 lines, files ≤ 200 lines
+- No `any` types
+- Pure functions by default
+- See [coding rules](.cursor/rules/scriptinel_npm_plugin_coding_rules.md) for details
+
+### Reporting Issues
+
+Found a bug or have a suggestion? Please [open an issue](https://github.com/dxmari/scriptinel/issues) with:
+- Clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Environment details (Node.js version, OS, etc.)
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Related Projects
+## Comparison with Alternatives
 
-- [npm-audit](https://docs.npmjs.com/cli/v8/commands/npm-audit) - Dependency vulnerability scanning
-- [snyk](https://snyk.io/) - Security scanning and monitoring
-- [dependabot](https://dependabot.com/) - Automated dependency updates
+Scriptinel focuses specifically on **install-time script execution control**, which complements but differs from other security tools:
+
+| Tool | Primary Focus | Scriptinel Advantage |
+|------|--------------|---------------------|
+| **npm audit** | Vulnerability scanning (known CVEs) | Controls script execution, not just vulnerabilities |
+| **Snyk** | Software Composition Analysis (SCA) | Install-time enforcement, policy-driven blocking |
+| **Dependabot** | Automated dependency updates | Prevents malicious scripts from running during updates |
+| **Scriptinel** | Script firewall | Default-deny with explicit approvals, CI-enforced |
+
+### Why Use Scriptinel?
+
+- **Complements existing tools**: Works alongside npm audit and Snyk
+- **Install-time protection**: Blocks malicious scripts before they execute
+- **Policy-driven**: Reviewable, version-controlled approvals
+- **CI-enforced**: Fails builds on unapproved scripts
+- **Zero-config**: Works immediately with `npx scriptinel`
+
+Scriptinel is not a replacement for vulnerability scanning—use it **together** with npm audit or Snyk for comprehensive security.
 
 ## Documentation
 
@@ -316,4 +425,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-Made with ❤️ for secure npm installs
+**Scriptinel** - Making npm install safe by default.
