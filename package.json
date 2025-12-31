@@ -1,6 +1,6 @@
 {
   "name": "scriptinel",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Install script firewall for npm - default-deny lifecycle scripts with explicit, reviewable allowlists",
   "keywords": [
     "npm",
